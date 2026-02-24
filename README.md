@@ -1,5 +1,5 @@
 # topluyobot
-Merhaba Bu Yeni Topluyonun Örnek Bir Bot Yapısıdır İyi Kodlamalar
+Merhaba Bu Topluyonun Örnek Bir Bot Yapısıdır İyi Kodlamalar
 
 KULLANIMI
 
