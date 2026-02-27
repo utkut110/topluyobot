@@ -57,7 +57,6 @@ async function checkPerm(group_id, user_id, perm) {
     return p && p[perm] ? true : false;
 }
 
-
 const configPath = path.join(__dirname, 'config.json');
 if (!fs.existsSync(configPath)) {
     fs.writeFileSync(configPath, JSON.stringify({
@@ -65,10 +64,10 @@ if (!fs.existsSync(configPath)) {
         gorusuruz_channel_id: null
     }, null, 2));
 }
+
 function getConfig() {
     return JSON.parse(fs.readFileSync(configPath, 'utf8'));
 }
-
 
 const commands = new Map();
 const commandsPath = path.join(__dirname, 'commands');
@@ -90,13 +89,40 @@ function connect() {
         }, 30000);
     });
 
+    ws.on('message', (data) => {
+        try {
+            const event = JSON.parse(data);
+
+            const text = event.message?.trim();
+            if (!text?.startsWith('!')) return;
+
+            const args = text.slice(1).split(' ');
+            const commandName = args.shift().toLowerCase();
+            const command = commands.get(commandName);
+            if (!command) return;
+
+            command.execute({
+                event,
+                args,
+                send,
+                dm,
+                post,
+                getGroupId,
+                checkPerm,
+                getConfig
+            });
+        } catch (err) {
+            console.error('❌ Message hatası:', err.message);
+        }
+    });
+
     ws.on('close', () => {
         console.log('❌ Bağlantı kapandı, yeniden bağlanıyor...');
         setTimeout(connect, 5000);
     });
 
     ws.on('error', (err) => {
-        console.error('Hata:', err.message);
+        console.error('❌ Hata:', err.message);
     });
 }
 
